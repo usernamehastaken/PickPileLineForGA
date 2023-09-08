@@ -11,16 +11,15 @@ using System.Windows.Forms;
 namespace PickPileLineForGA
 {
     [Transaction(TransactionMode.Manual)]
-    public class Main : IExternalCommand
+    public class Main : IExternalCommand     //===========程序入口
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            UIApplication uIApplication = commandData.Application;
-            UIDocument uIDocument = uIApplication.ActiveUIDocument;
-            Document document = uIDocument.Document;
+            myFuncs.uIApplication = commandData.Application;
+
             //========================================
             MainForm mainForm = new MainForm();
-            //mainForm.ShowDialog();
+            mainForm.ShowDialog();
             //MessageBox.Show(myFuncs.cal().ToString());
             //========================================
             return Result.Succeeded;

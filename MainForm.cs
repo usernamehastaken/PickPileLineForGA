@@ -7,6 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
+using Autodesk.Revit.Attributes;
 
 namespace PickPileLineForGA
 {
@@ -25,6 +28,12 @@ namespace PickPileLineForGA
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
 
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            ElementId elementId = myFuncs.UIDocument.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element).ElementId;
+            myFuncs.tmp();
         }
     }
 }
