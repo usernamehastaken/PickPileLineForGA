@@ -13,7 +13,7 @@ using Autodesk.Revit.Attributes;
 
 namespace PickPileLineForGA
 {
-    public partial class MainForm : Form
+    public partial class MainForm : System.Windows.Forms.Form
     {
         public MainForm()
         {
@@ -32,8 +32,9 @@ namespace PickPileLineForGA
 
         private void button1_Click(object sender, EventArgs e)
         {
+            //this.Hide();
             ElementId elementId = myFuncs.UIDocument.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element).ElementId;
-            myFuncs.tmp();
+            myFuncs.firstPick();
         }
     }
 }

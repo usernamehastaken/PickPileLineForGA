@@ -19,7 +19,7 @@ namespace PickPileLineForGA
 
             //========================================
             MainForm mainForm = new MainForm();
-            mainForm.ShowDialog();
+            mainForm.Show();
             //MessageBox.Show(myFuncs.cal().ToString());
             //========================================
             return Result.Succeeded;
