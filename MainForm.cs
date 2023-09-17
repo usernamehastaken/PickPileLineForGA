@@ -34,7 +34,11 @@ namespace PickPileLineForGA
         {
             //this.Hide();
             ElementId elementId = myFuncs.UIDocument.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element).ElementId;
-            myFuncs.firstPick();
+            Connector connectorFirstPick = myFuncs.connectorFirstPick();
+            if (!(connectorFirstPick is null))
+            {
+                myFuncs.getPipeLineFromConnector(connectorFirstPick);
+            }
         }
     }
 }

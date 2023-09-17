@@ -8,3 +8,14 @@ C:\Users\chenxinxin.TCDRILAN\source\repos\PickPileLineForGA\obj\Debug\PickPileLi
 C:\Users\chenxinxin.TCDRILAN\source\repos\PickPileLineForGA\obj\Debug\PickPileLineForGA.csproj.CopyComplete
 C:\Users\chenxinxin.TCDRILAN\source\repos\PickPileLineForGA\obj\Debug\PickPileLineForGA.dll
 C:\Users\chenxinxin.TCDRILAN\source\repos\PickPileLineForGA\obj\Debug\PickPileLineForGA.pdb
+C:\Users\chenxinxin\source\repos\PickPileLineForGA\bin\Debug\PickPileLineForGA.dll
+C:\Users\chenxinxin\source\repos\PickPileLineForGA\bin\Debug\PickPileLineForGA.pdb
+C:\Users\chenxinxin\source\repos\PickPileLineForGA\bin\Debug\RevitAPI.dll
+C:\Users\chenxinxin\source\repos\PickPileLineForGA\bin\Debug\RevitAPIUI.dll
+C:\Users\chenxinxin\source\repos\PickPileLineForGA\obj\Debug\PickPileLineForGA.csproj.AssemblyReference.cache
+C:\Users\chenxinxin\source\repos\PickPileLineForGA\obj\Debug\PickPileLineForGA.MainForm.resources
+C:\Users\chenxinxin\source\repos\PickPileLineForGA\obj\Debug\PickPileLineForGA.csproj.GenerateResource.cache
+C:\Users\chenxinxin\source\repos\PickPileLineForGA\obj\Debug\PickPileLineForGA.csproj.CoreCompileInputs.cache
+C:\Users\chenxinxin\source\repos\PickPileLineForGA\obj\Debug\PickPileLineForGA.csproj.CopyComplete
+C:\Users\chenxinxin\source\repos\PickPileLineForGA\obj\Debug\PickPileLineForGA.dll
+C:\Users\chenxinxin\source\repos\PickPileLineForGA\obj\Debug\PickPileLineForGA.pdb
