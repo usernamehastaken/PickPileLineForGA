@@ -19,3 +19,4 @@ C:\Users\chenxinxin\source\repos\PickPileLineForGA\obj\Debug\PickPileLineForGA.c
 C:\Users\chenxinxin\source\repos\PickPileLineForGA\obj\Debug\PickPileLineForGA.csproj.CopyComplete
 C:\Users\chenxinxin\source\repos\PickPileLineForGA\obj\Debug\PickPileLineForGA.dll
 C:\Users\chenxinxin\source\repos\PickPileLineForGA\obj\Debug\PickPileLineForGA.pdb
+C:\Users\chenxinxin.TCDRILAN\source\repos\PickPileLineForGA\obj\Debug\PickPileLineForGA.csprojAssemblyReference.cache

@@ -32,13 +32,14 @@ namespace PickPileLineForGA
 
         private void button1_Click(object sender, EventArgs e)
         {
-            //this.Hide();
-            ElementId elementId = myFuncs.UIDocument.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element).ElementId;
+            //ElementId elementId = myFuncs.UIDocument.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element).ElementId;
             Connector connectorFirstPick = myFuncs.connectorFirstPick();
+
             if (!(connectorFirstPick is null))
             {
-                myFuncs.getPipeLineFromConnector(connectorFirstPick);
+                myFuncs.getPipeLineFromConnector();
             }
+            MessageBox.Show(myFuncs.guanwang.Count.ToString());
         }
     }
 }
