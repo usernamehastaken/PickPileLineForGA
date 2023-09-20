@@ -16,11 +16,9 @@ namespace PickPileLineForGA
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             myFuncs.uIApplication = commandData.Application;
-
             //========================================
             MainForm mainForm = new MainForm();
             mainForm.Show();
-            //MessageBox.Show(myFuncs.cal().ToString());
             //========================================
             return Result.Succeeded;
         }

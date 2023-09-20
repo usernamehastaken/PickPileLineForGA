@@ -1,15 +1,7 @@
-﻿using System;
+﻿using Autodesk.Revit.DB;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Autodesk.Revit.DB;
-using Autodesk.Revit.UI;
-using Autodesk.Revit.Attributes;
 
 namespace PickPileLineForGA
 {
@@ -20,15 +12,14 @@ namespace PickPileLineForGA
             InitializeComponent();
         }
 
-        private void splitContainer1_Panel1_Paint(object sender, PaintEventArgs e)
+        private void DataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-
+            int rowindex = e.RowIndex;
+            //MessageBox.Show(dataGridView1.Rows[rowindex].Cells["ID"].Value.ToString());
+            ElementId elementId = new ElementId(int.Parse(this.dataGridView1.Rows[rowindex].Cells["ID"].Value.ToString()));
+            myFuncs.UIDocument.Selection.SetElementIds(new List<ElementId> { elementId });
         }
 
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -39,7 +30,15 @@ namespace PickPileLineForGA
             {
                 myFuncs.getPipeLineFromConnector();
             }
-            MessageBox.Show(myFuncs.guanwang.Count.ToString());
+            MessageBox.Show("一共找到：" + myFuncs.guanwang.Count.ToString() + "支路");
+            MessageBox.Show("列表为左右末端信息，请更改或核对流量数据!");
+            myFuncs.getListAllEndInfo(this);
+        }
+
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            myFuncs.getListAllzhiluInfo(this);
         }
     }
 }
