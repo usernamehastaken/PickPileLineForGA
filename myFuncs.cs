@@ -92,7 +92,7 @@ namespace PickPileLineForGA
             return connectorReturn;
         }
 
-        public static void getPipeLineFromConnector()//**删除输入
+        public static void getPipeLineFromConnector()//**得到所有支路连接件
         {
             //MessageBox.Show(guanwang[true].Count.ToString());
             //取guanwang最后一个元素进行循环，直至为空
@@ -304,6 +304,7 @@ namespace PickPileLineForGA
             }
             //检验结束
             mainForm.dataGridView1.Rows.Clear();
+            int rowIndex;
             int num = 0;
             foreach (List<jieDian> zhilu in guanwang)
             {
@@ -311,19 +312,104 @@ namespace PickPileLineForGA
                 for (int i = zhilu.Count-1; i >= 0; i--)
                 {
                     jieDian jieDian = zhilu[i];//从末端算起
-                    Element element = document.GetElement(jieDian.owerId);
+                    Element element = document.GetElement(jieDian.owerId);//得到图元
                     BuiltInCategory builtInCategory = (BuiltInCategory)element.Category.Id.IntegerValue;
+                    Duct duct = null;
+                    Pipe pipe = null;
+                    FamilyInstance familyInstance = null;
+
+                    #region 判断连接件主体及得到对应节点连接件
+                    Connector connector = null;
                     switch (builtInCategory)
                     {
                         case BuiltInCategory.OST_DuctCurves:
-                            Duct duct = (Duct)element;
+                            duct = (Duct)element;
+                            foreach (Connector item in duct.ConnectorManager.Connectors)
+                            {
+                                if (item.Id == jieDian.connectorID)
+                                {
+                                    connector = item;
+                                }
+                            }
                             break;
                         case BuiltInCategory.OST_PipeCurves:
-                            Pipe pipe = (Pipe)element;
+                            pipe = (Pipe)element;
+                            foreach (Connector item in pipe.ConnectorManager.Connectors)
+                            {
+                                if (item.Id == jieDian.connectorID)
+                                {
+                                    connector = item;
+                                }
+                            }
                             break;
                         default:
-                            FamilyInstance familyInstance = (FamilyInstance)element;
+                            familyInstance = (FamilyInstance)element;
+                            foreach (Connector item in familyInstance.MEPModel.ConnectorManager.Connectors)
+                            {
+                                if (item.Id == jieDian.connectorID)
+                                {
+                                    connector = item;
+                                }
+                            }
                             break;
+                    }
+                    #endregion
+
+                    string size = get_ConnectorSize(jieDian.owerId, jieDian.connectorID);
+
+                    #region 得到第一个（末端）连接件的流量
+                    string volume = "0";
+                    if (i == zhilu.Count - 1)
+                    {
+                        volume = get_Parameters("HC_AirFlow", element.Id);
+                    }
+                    #endregion
+
+                    string angle = "0";
+                    //支路名称：PipeLineName
+                    //ID：      ID
+                    //尺寸：    Size
+                    //流量：    Volume
+                    //类型：    Type
+                    //角度：    Angle
+                    rowIndex = mainForm.dataGridView1.Rows.Add();
+                    mainForm.dataGridView1.Rows[rowIndex].Cells["PipeLineName"].Value = "支路" + i.ToString();
+                    mainForm.dataGridView1.Rows[rowIndex].Cells["ID"].Value = element.Id;
+                    if (i==0)//最后一个连接件
+                    {
+
+                    }
+                    else
+                    {
+                        if (jieDian.owerId==zhilu[i-1].owerId)//同一主体连接件
+                        {
+                            if (familyInstance!=null)
+                            {
+                                switch (familyInstance.MEPModel.ConnectorManager.Connectors.Size)
+                                {
+                                    case 1:
+                                        mainForm.dataGridView1.Rows[rowIndex].Cells["Size"].Value = size;
+                                        mainForm.dataGridView1.Rows[rowIndex].Cells["Volume"].Value = volume;
+                                        mainForm.dataGridView1.Rows[rowIndex].Cells["Type"].Value = "End";
+                                        mainForm.dataGridView1.Rows[rowIndex].Cells["Angle"].Value = angle;
+                                        break;
+                                    case 2:
+                                        angle=g
+                                        break;
+                                    case 3:
+                                        break;
+                                    case 4:
+                                        break;
+                                }
+                            }
+                            else //风管与水管一致
+                            {
+                                mainForm.dataGridView1.Rows[rowIndex].Cells["Size"].Value = size;
+                                mainForm.dataGridView1.Rows[rowIndex].Cells["Volume"].Value = volume;
+                                mainForm.dataGridView1.Rows[rowIndex].Cells["Type"].Value = duct.GetType().Name;
+                                mainForm.dataGridView1.Rows[rowIndex].Cells["Angle"].Value = angle;
+                            }
+                        }
                     }
                 }
             }
@@ -343,7 +429,104 @@ namespace PickPileLineForGA
             }
             throw new Exception("Error: Can not get the parameter of " + par_name);
         }
+        public static string get_ConnectorSize(ElementId elementId,int connectorID)
+        {
+            Element element = document.GetElement(elementId);//得到图元
+            BuiltInCategory builtInCategory = (BuiltInCategory)element.Category.Id.IntegerValue;
+            Duct duct = null;
+            Pipe pipe = null;
+            FamilyInstance familyInstance = null;
+            #region 判断连接件主体及得到对应节点连接件
+            Connector connector = null;
+            switch (builtInCategory)
+            {
+                case BuiltInCategory.OST_DuctCurves:
+                    duct = (Duct)element;
+                    foreach (Connector item in duct.ConnectorManager.Connectors)
+                    {
+                        if (item.Id == connectorID)
+                        {
+                            connector = item;
+                        }
+                    }
+                    break;
+                case BuiltInCategory.OST_PipeCurves:
+                    pipe = (Pipe)element;
+                    foreach (Connector item in pipe.ConnectorManager.Connectors)
+                    {
+                        if (item.Id == connectorID)
+                        {
+                            connector = item;
+                        }
+                    }
+                    break;
+                default:
+                    familyInstance = (FamilyInstance)element;
+                    foreach (Connector item in familyInstance.MEPModel.ConnectorManager.Connectors)
+                    {
+                        if (item.Id == connectorID)
+                        {
+                            connector = item;
+                        }
+                    }
+                    break;
+            }
+            #endregion
 
+            #region 得到连接件的Size
+            string size = "";//连接件尺寸
+            switch (connector.Shape)
+            {
+                case ConnectorProfileType.Invalid:
+                    throw new Exception("管道尺寸不在软件考虑范围");
+                case ConnectorProfileType.Round:
+                    size = UnitUtils.Convert(connector.Radius, DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_MILLIMETERS).ToString();
+                    break;
+                case ConnectorProfileType.Rectangular:
+                    size = UnitUtils.Convert(connector.Width, DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_MILLIMETERS).ToString() +
+                        "x" + UnitUtils.Convert(connector.Height, DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_MILLIMETERS).ToString();
+                    break;
+                case ConnectorProfileType.Oval:
+                    throw new Exception("椭圆管道尺寸不在软件考虑范围");
+            }
+            #endregion
+            return size;
+        }
+
+        public static string get_ConnectorsAngle(ElementId elementId1,int connectorID1,ElementId elementId2,int connectorID2)
+        {
+            string angel = "0";
+            FamilyInstance f1 = (FamilyInstance)document.GetElement(elementId1);
+            FamilyInstance f2 = (FamilyInstance)document.GetElement(elementId2);
+            Connector c1 = null;
+            Connector c2 = null;
+            foreach (Connector item in f1.MEPModel.ConnectorManager.Connectors)
+            {
+                if (item.Id == connectorID1)
+                {
+                    c1 = item;
+                    break;
+                }
+            }
+            foreach (Connector item in f2.MEPModel.ConnectorManager.Connectors)
+            {
+                if (item.Id == connectorID2)
+                {
+                    c2 = item;
+                    break;
+                }
+            }
+            
+        }
+        public static double get_Angle(XYZ p1, XYZ p2)
+        {
+            double angle = Math.Round(p1.AngleTo(p2) / Math.PI * 180, 2);
+            if (angle > 90)
+            {
+                return 180 - angle;
+            }
+            return angle;
+        }
         public class jieDian
         {
             public ElementId owerId { get; set; }
