@@ -30,15 +30,20 @@ namespace PickPileLineForGA
             {
                 myFuncs.getPipeLineFromConnector();
             }
-            MessageBox.Show("一共找到：" + myFuncs.guanwang.Count.ToString() + "支路");
-            MessageBox.Show("列表为左右末端信息，请更改或核对流量数据!");
-            myFuncs.getListAllEndInfo(this);
+            if (myFuncs.guanwang.Count > 0)
+            {
+                MessageBox.Show("一共找到：" + myFuncs.guanwang.Count.ToString() + "支路");
+                MessageBox.Show("列表为左右末端信息，请更改或核对流量数据!");
+                myFuncs.getListAllEndInfo(this);
+            }
         }
 
 
         private void button2_Click(object sender, EventArgs e)
         {
             myFuncs.getListAllzhiluInfo(this);
+            MessageBox.Show("进行各管段流量计算");
+            myFuncs.set_flow_to_all_zhilu(this);
         }
     }
 }

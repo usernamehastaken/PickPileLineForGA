@@ -22,7 +22,6 @@ namespace PickPileLineForGA
         public static List<List<jieDian>> linshiguanwang = new List<List<jieDian>>();
         //选取第一个元素，得到唯一一个连接的连接件
         //不唯一报错
-
         public static Connector connectorFirstPick()//选择管道的汇总处，选出未连接的连接件，并做管网及临时管网的初始化
         {
             Reference reference = UIDocument.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element);
@@ -91,7 +90,6 @@ namespace PickPileLineForGA
 
             return connectorReturn;
         }
-
         public static void getPipeLineFromConnector()//**得到所有支路连接件
         {
             //MessageBox.Show(guanwang[true].Count.ToString());
@@ -132,8 +130,18 @@ namespace PickPileLineForGA
                     linshiguanwang.Remove(zhilu);
                 }
             }
+            //判断是否有三通或四通直接作为支路末端
+            List<ElementId> tmpL = new List<ElementId>();
+            foreach (List<jieDian> item in guanwang)
+            {
+                tmpL.Add(item[item.Count - 1].owerId);
+            }
+            if (tmpL.Distinct().ToList().Count!=guanwang.Count)
+            {
+                MessageBox.Show("有三通或四通直接作为管网末端，请加末端或管段作为末端并重新运行");
+                guanwang.Clear();
+            }
         }
-
         public static jieDian getRefConnector(jieDian jieDianIn)//输入一个连接件，返回与其相连接的不同主体相关连接件(唯一,可为空)
         {
             jieDian jieDianReturn = null;
@@ -193,7 +201,6 @@ namespace PickPileLineForGA
             }
             return jieDianReturn;
         }
-
         public static List<jieDian> getOwnerOtherConnectors(jieDian jieDianIn)//输入一个连接件，返回同一主体的其他相关连接件（不唯一,可为空）
         {
             List<jieDian> jieDiansReturn = new List<jieDian>();
@@ -233,7 +240,6 @@ namespace PickPileLineForGA
             }
             return jieDiansReturn;
         }
-
         public static void getListAllEndInfo(MainForm mainForm)
         {
             mainForm.dataGridView1.Rows.Clear();
@@ -281,10 +287,15 @@ namespace PickPileLineForGA
                 mainForm.dataGridView1.Rows[rowindex].Cells["Volume"].Value = get_Parameters("HC_AirFlow", element.Id);
             }
         }
-
         public static void getListAllzhiluInfo(MainForm mainForm)
         {
-            //MessageBox.Show(mainForm.dataGridView1.Rows[1].Cells["Volume"].Value.ToString());
+            //判断是否已经运行功能1
+            if (mainForm.dataGridView1.Rows.Count<1)
+            {
+                MessageBox.Show("表中信息为空，请先运行功能1");
+                return;
+            }
+            //检测是否有末端未设置流量
             for (int i = 0; i < mainForm.dataGridView1.Rows.Count; i++)
             {
                 try
@@ -302,23 +313,23 @@ namespace PickPileLineForGA
                     return;
                 }
             }
-            //检验结束
+            //开始进入实际主程序
             mainForm.dataGridView1.Rows.Clear();
-            int rowIndex;
-            int num = 0;
-            foreach (List<jieDian> zhilu in guanwang)
+            int num = 0;//用于支路名称
+            foreach (List<jieDian> zhilu in guanwang)//从guanwang里的zhilu开始循环
             {
                 num = num + 1;
-                for (int i = zhilu.Count-1; i >= 0; i--)
+                for (int i = zhilu.Count-1; i >= 0; i--)//从支路的末端jiedian算起
                 {
-                    jieDian jieDian = zhilu[i];//从末端算起
+                    #region 循环主题的变量定义
+                    jieDian jieDian = zhilu[i];//支路节点
                     Element element = document.GetElement(jieDian.owerId);//得到图元
                     BuiltInCategory builtInCategory = (BuiltInCategory)element.Category.Id.IntegerValue;
                     Duct duct = null;
                     Pipe pipe = null;
                     FamilyInstance familyInstance = null;
-
-                    #region 判断连接件主体及得到对应节点连接件
+                    #endregion
+                    #region 得到当前节点的主体及对应连接件，判断连接件主体（后续用isnull判断）
                     Connector connector = null;
                     switch (builtInCategory)
                     {
@@ -354,67 +365,97 @@ namespace PickPileLineForGA
                             break;
                     }
                     #endregion
-
-                    string size = get_ConnectorSize(jieDian.owerId, jieDian.connectorID);
-
-                    #region 得到第一个（末端）连接件的流量
-                    string volume = "0";
-                    if (i == zhilu.Count - 1)
-                    {
-                        volume = get_Parameters("HC_AirFlow", element.Id);
-                    }
-                    #endregion
-
+                    //得到连接件的尺寸
+                    string size = get_Connector_Size(jieDian.owerId, jieDian.connectorID);
+                    string volume = get_Parameters("HC_AirFlow", element.Id);
                     string angle = "0";
-                    //支路名称：PipeLineName
-                    //ID：      ID
-                    //尺寸：    Size
-                    //流量：    Volume
-                    //类型：    Type
-                    //角度：    Angle
-                    rowIndex = mainForm.dataGridView1.Rows.Add();
-                    mainForm.dataGridView1.Rows[rowIndex].Cells["PipeLineName"].Value = "支路" + i.ToString();
-                    mainForm.dataGridView1.Rows[rowIndex].Cells["ID"].Value = element.Id;
-                    if (i==0)//最后一个连接件
+                    //末端是三通及四通的情况已经排除
+                    //判断是否为最后的总管
+                    //判断是否与下一个节点同图元，如果是直接进行下一个循环直到不是
+                    if (i==zhilu.Count-1)//最后一个可以往后判断但是无法往前判断
                     {
-
+                        if (jieDian.owerId != zhilu[i-1].owerId)//末端唯一节点
+                        {
+                            set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "End", angle);
+                        }
                     }
-                    else
+                    else if (i>0)//非末端及最后节点，或末端非唯一连接件
                     {
-                        if (jieDian.owerId==zhilu[i-1].owerId)//同一主体连接件
+                        if (jieDian.owerId != zhilu[i-1].owerId)//图元的最后一个连接件进行图元计算,如果一样直接跳过
                         {
                             if (familyInstance!=null)
                             {
                                 switch (familyInstance.MEPModel.ConnectorManager.Connectors.Size)
                                 {
-                                    case 1:
-                                        mainForm.dataGridView1.Rows[rowIndex].Cells["Size"].Value = size;
-                                        mainForm.dataGridView1.Rows[rowIndex].Cells["Volume"].Value = volume;
-                                        mainForm.dataGridView1.Rows[rowIndex].Cells["Type"].Value = "End";
-                                        mainForm.dataGridView1.Rows[rowIndex].Cells["Angle"].Value = angle;
+                                    case 2://弯头，变径,计算角度
+                                        angle = get_ConnectorsAngle(jieDian.owerId, jieDian.connectorID, zhilu[i + 1].owerId, zhilu[i + 1].connectorID);
+                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Elbow", angle);
                                         break;
-                                    case 2:
-                                        angle=g
+                                    case 3://三通，计算角度
+                                        angle = get_ConnectorsAngle(jieDian.owerId, jieDian.connectorID, zhilu[i + 1].owerId, zhilu[i + 1].connectorID);
+                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Tee", angle);
                                         break;
-                                    case 3:
+                                    case 4://四通，计算角度
+                                        angle = get_ConnectorsAngle(jieDian.owerId, jieDian.connectorID, zhilu[i + 1].owerId, zhilu[i + 1].connectorID);
+                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Cross", angle);
                                         break;
-                                    case 4:
-                                        break;
+                                } ;
+                            }
+                            else//只能是水管或风管
+                            {
+                                if (duct != null)
+                                {
+                                    set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Duct", angle);
+                                }
+                                else
+                                {
+                                    set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Pipe", angle);
                                 }
                             }
-                            else //风管与水管一致
+                        }
+                    }
+                    if (i==0)
+                    {
+                        if (jieDian.owerId != zhilu[i+1].owerId)
+                        {
+                            set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "总管", angle);
+                        }
+                        else
+                        {
+                            if (familyInstance != null)
                             {
-                                mainForm.dataGridView1.Rows[rowIndex].Cells["Size"].Value = size;
-                                mainForm.dataGridView1.Rows[rowIndex].Cells["Volume"].Value = volume;
-                                mainForm.dataGridView1.Rows[rowIndex].Cells["Type"].Value = duct.GetType().Name;
-                                mainForm.dataGridView1.Rows[rowIndex].Cells["Angle"].Value = angle;
+                                switch (familyInstance.MEPModel.ConnectorManager.Connectors.Size)
+                                {
+                                    case 2://弯头，变径,计算角度
+                                        angle = get_ConnectorsAngle(jieDian.owerId, jieDian.connectorID, zhilu[i + 1].owerId, zhilu[i + 1].connectorID);
+                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Elbow", angle);
+                                        break;
+                                    case 3://三通，计算角度
+                                        angle = get_ConnectorsAngle(jieDian.owerId, jieDian.connectorID, zhilu[i + 1].owerId, zhilu[i + 1].connectorID);
+                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Tee", angle);
+                                        break;
+                                    case 4://四通，计算角度
+                                        angle = get_ConnectorsAngle(jieDian.owerId, jieDian.connectorID, zhilu[i + 1].owerId, zhilu[i + 1].connectorID);
+                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Cross", angle);
+                                        break;
+                                };
+                            }
+                            else//只能是水管或风管
+                            {
+                                if (duct != null)
+                                {
+                                    set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Duct", angle);
+                                }
+                                else
+                                {
+                                    set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Pipe", angle);
+                                }
                             }
                         }
                     }
                 }
             }
         }
-
         public static string get_Parameters(string par_name, ElementId id)
         {
             Element element = document.GetElement(id);
@@ -429,7 +470,7 @@ namespace PickPileLineForGA
             }
             throw new Exception("Error: Can not get the parameter of " + par_name);
         }
-        public static string get_ConnectorSize(ElementId elementId,int connectorID)
+        public static string get_Connector_Size(ElementId elementId,int connectorID)
         {
             Element element = document.GetElement(elementId);//得到图元
             BuiltInCategory builtInCategory = (BuiltInCategory)element.Category.Id.IntegerValue;
@@ -492,31 +533,55 @@ namespace PickPileLineForGA
             #endregion
             return size;
         }
-
+        public static void set_mainForm_data(MainForm mainForm,string PipeLineName,ElementId ID,string Size,string Volume,string Type,string Angle)
+        {
+            //支路名称：PipeLineName
+            //ID：      ID
+            //尺寸：    Size
+            //流量：    Volume
+            //类型：    Type
+            //角度：    Angle
+            int rowIndex = mainForm.dataGridView1.Rows.Add();
+            mainForm.dataGridView1.Rows[rowIndex].Cells["PipeLineName"].Value = PipeLineName;
+            mainForm.dataGridView1.Rows[rowIndex].Cells["ID"].Value = ID;
+            mainForm.dataGridView1.Rows[rowIndex].Cells["Volume"].Value = Volume;
+            mainForm.dataGridView1.Rows[rowIndex].Cells["Type"].Value = Type;
+            mainForm.dataGridView1.Rows[rowIndex].Cells["Angle"].Value = Angle;
+            mainForm.dataGridView1.Rows[rowIndex].Cells["Size"].Value = Size;
+        }
         public static string get_ConnectorsAngle(ElementId elementId1,int connectorID1,ElementId elementId2,int connectorID2)
         {
-            string angel = "0";
-            FamilyInstance f1 = (FamilyInstance)document.GetElement(elementId1);
-            FamilyInstance f2 = (FamilyInstance)document.GetElement(elementId2);
-            Connector c1 = null;
-            Connector c2 = null;
-            foreach (Connector item in f1.MEPModel.ConnectorManager.Connectors)
+            FamilyInstance F1 = (FamilyInstance)document.GetElement(elementId1);
+            Connector connector1 = null;
+            FamilyInstance F2 = (FamilyInstance)document.GetElement(elementId2);
+            Connector connector2 = null;
+            foreach (Connector item in F1.MEPModel.ConnectorManager.Connectors)
             {
-                if (item.Id == connectorID1)
+                if (item.Id==connectorID1)
                 {
-                    c1 = item;
+                    connector1 = item;
                     break;
                 }
             }
-            foreach (Connector item in f2.MEPModel.ConnectorManager.Connectors)
+            foreach (Connector item in F2.MEPModel.ConnectorManager.Connectors)
             {
-                if (item.Id == connectorID2)
+                if (item.Id==connectorID2)
                 {
-                    c2 = item;
-                    break;
+                    connector2 = item;
                 }
             }
-            
+            XYZ origin1 = F1.FacingOrientation;
+            XYZ origin2 = F2.FacingOrientation;
+            XYZ v1 = get_VectorFromConnector(connector1, origin1);
+            XYZ v2 = get_VectorFromConnector(connector2, origin2);
+            return get_Angle(v1, v2).ToString();
+        }
+        public static XYZ get_VectorFromConnector(Connector connector, XYZ origin)
+        {
+            double X = connector.CoordinateSystem.BasisX.X * origin.X + connector.CoordinateSystem.BasisX.Y * origin.Y + connector.CoordinateSystem.BasisX.Z * origin.Z;
+            double Y = connector.CoordinateSystem.BasisY.X * origin.X + connector.CoordinateSystem.BasisY.Y * origin.Y + connector.CoordinateSystem.BasisY.Z * origin.Z;
+            double Z = connector.CoordinateSystem.BasisZ.X * origin.X + connector.CoordinateSystem.BasisZ.Y * origin.Y + connector.CoordinateSystem.BasisZ.Z * origin.Z;
+            return new XYZ(X, Y, Z);
         }
         public static double get_Angle(XYZ p1, XYZ p2)
         {
@@ -527,8 +592,22 @@ namespace PickPileLineForGA
             }
             return angle;
         }
+        public static void set_flow_to_all_zhilu(MainForm mainForm)
+        {
+            int rowCount = mainForm.dataGridView1.Rows.Count;
+            for (int i = 0; i < rowCount; i++)
+            {
+                if (mainForm.dataGridView1.Rows[i].Cells["Volume"].Value==null)
+                {
+                    mainForm.dataGridView1.Rows[i].Cells["Volume"].Value = mainForm.dataGridView1.Rows[i - 1].Cells["Volume"].Value;
+                }
+            }
+
+        }
         public class jieDian
         {
+            //zhilu =list<jieDian>
+            //guanwang=list<zhilu>
             public ElementId owerId { get; set; }
             public int connectorID { get; set; }
         }
