@@ -1,15 +1,20 @@
 ﻿using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace PickPileLineForGA
 {
+    
     public partial class MainForm : System.Windows.Forms.Form
     {
+        public ExecuteEventHandler _executeEventHandler = null;
+        public ExternalEvent _externalEvent = null;
         public MainForm()
         {
             InitializeComponent();
+
         }
 
         private void DataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -23,7 +28,6 @@ namespace PickPileLineForGA
 
         private void button1_Click(object sender, EventArgs e)
         {
-            //ElementId elementId = myFuncs.UIDocument.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element).ElementId;
             Connector connectorFirstPick = myFuncs.connectorFirstPick();
 
             if (!(connectorFirstPick is null))
@@ -44,6 +48,37 @@ namespace PickPileLineForGA
             myFuncs.getListAllzhiluInfo(this);
             MessageBox.Show("进行各管段流量计算");
             myFuncs.set_flow_to_all_zhilu(this);
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "|*.csv";
+            saveFileDialog.Title = "导出数据";
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                myFuncs.data_to_csv(this,saveFileDialog.FileName);
+            }
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            myFuncs.MyForm = this;
+            _executeEventHandler.ExecuteAction = null;
+            _executeEventHandler.ExecuteAction += myFuncs.setValue_to_revitFile;
+            _externalEvent.Raise();
+            MessageBox.Show("修改完毕！");
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "|*.csv";
+            openFileDialog.Title = "导入数据";
+            if (openFileDialog.ShowDialog()==DialogResult.OK)
+            {
+                myFuncs.csv_to_data(this, openFileDialog.FileName);
+            }
         }
     }
 }

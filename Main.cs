@@ -16,8 +16,13 @@ namespace PickPileLineForGA
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             myFuncs.uIApplication = commandData.Application;
+            //test.run();
             //========================================
             MainForm mainForm = new MainForm();
+            ExecuteEventHandler executeEventHandler = new ExecuteEventHandler("my exe");
+            ExternalEvent externalEvent = ExternalEvent.Create(executeEventHandler);
+            mainForm._executeEventHandler = executeEventHandler;
+            mainForm._externalEvent = externalEvent;
             mainForm.Show();
             //========================================
             return Result.Succeeded;

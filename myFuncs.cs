@@ -9,15 +9,18 @@ using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI;
 using System.Windows.Forms;
+using System.IO;
 
 namespace PickPileLineForGA
 {
+    //[Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
     public class myFuncs
     {
+        //此项为非模态窗体修改图元参数使用
+        public static MainForm MyForm = null;
         public static UIApplication uIApplication { get; set; }
         public static UIDocument UIDocument { get { return uIApplication.ActiveUIDocument; } }
         public static Document document { get { return UIDocument.Document; } }
-
         public static List<List<jieDian>> guanwang = new List<List<jieDian>>();
         public static List<List<jieDian>> linshiguanwang = new List<List<jieDian>>();
         //选取第一个元素，得到唯一一个连接的连接件
@@ -594,15 +597,129 @@ namespace PickPileLineForGA
         }
         public static void set_flow_to_all_zhilu(MainForm mainForm)
         {
-            int rowCount = mainForm.dataGridView1.Rows.Count;
+            int rowCount = mainForm.dataGridView1.Rows.Count;//总行数进行循环使用
+            #region 对所有非末端管段进行流量赋值
+            //末端集合用于循环使用
+            List<jieDian> list_moduan = new List<jieDian>();
+            foreach (List<jieDian> zhilu in guanwang)
+            {
+                list_moduan.Add(zhilu[zhilu.Count - 1]);
+            }
+            //将所有非末端流量进行赋值
             for (int i = 0; i < rowCount; i++)
             {
-                if (mainForm.dataGridView1.Rows[i].Cells["Volume"].Value==null)
+                if (i>0)
                 {
-                    mainForm.dataGridView1.Rows[i].Cells["Volume"].Value = mainForm.dataGridView1.Rows[i - 1].Cells["Volume"].Value;
+                    if (mainForm.dataGridView1.Rows[i].Cells["PipeLineName"].Value.ToString() == mainForm.dataGridView1.Rows[i - 1].Cells["PipeLineName"].Value.ToString())
+                    {
+                        mainForm.dataGridView1.Rows[i].Cells["Volume"].Value = mainForm.dataGridView1.Rows[i - 1].Cells["Volume"].Value;
+                    }
                 }
             }
+            #endregion
 
+            #region 将相同ID的元素流量合并
+            Dictionary<string, float> dic_flow = new Dictionary<string, float>();
+            for (int i = 0; i < rowCount; i++)
+            {
+                if (dic_flow.Keys.Contains(mainForm.dataGridView1.Rows[i].Cells["ID"].Value.ToString())==true)
+                {
+                    dic_flow[mainForm.dataGridView1.Rows[i].Cells["ID"].Value.ToString()] += float.Parse(mainForm.dataGridView1.Rows[i].Cells["Volume"].Value.ToString());
+                }
+                else
+                {
+                    dic_flow[mainForm.dataGridView1.Rows[i].Cells["ID"].Value.ToString()] = float.Parse(mainForm.dataGridView1.Rows[i].Cells["Volume"].Value.ToString());
+                }
+            }
+            //对表中单元格进行赋值
+            for (int i = 0; i < rowCount; i++)
+            {
+                mainForm.dataGridView1.Rows[i].Cells["Volume"].Value = dic_flow[mainForm.dataGridView1.Rows[i].Cells["ID"].Value.ToString()].ToString();
+                
+            }
+            #endregion
+        }
+        public static void data_to_csv(MainForm mainForm,string fullname)
+        {
+            //支路名称：PipeLineName
+            //ID：      ID
+            //尺寸：    Size
+            //流量：    Volume
+            //类型：    Type
+            //角度：    Angle
+            if (File.Exists(fullname))
+            {
+                File.Delete(fullname);
+            }
+            using (FileStream fileStream = new FileStream(fullname, FileMode.OpenOrCreate, FileAccess.Write))
+            {
+                StreamWriter streamWriter=new StreamWriter(fileStream);
+                int rowCount = mainForm.dataGridView1.RowCount;
+                streamWriter.WriteLine("PipeLineName,ID,Size,Volume,Type,Angle,");
+                for (int i = 0; i < rowCount; i++)
+                {
+                    int columnCount = mainForm.dataGridView1.ColumnCount;
+                    string strData = "";
+                    for (int j = 0; j < columnCount; j++)
+                    {
+                        strData += mainForm.dataGridView1.Rows[i].Cells[j].Value.ToString()+",";
+                    }
+                    streamWriter.WriteLine(strData);
+                }
+                streamWriter.Close();
+            }
+            MessageBox.Show("文件已经导出，请登入平台进行计算！");
+        }
+        public static void csv_to_data(MainForm mainForm,string filename)
+        {
+            //支路名称：PipeLineName
+            //ID：      ID
+            //尺寸：    Size
+            //流量：    Volume
+            //类型：    Type
+            //角度：    Angle
+            using (FileStream fileStream =new FileStream (filename,FileMode.Open,FileAccess.Read))
+            {
+                StreamReader reader=new StreamReader(fileStream);
+                if (mainForm.dataGridView1.Rows.Count > 0)
+                {
+                    mainForm.dataGridView1.Rows.Clear();
+                }
+                string[] strData = reader.ReadToEnd().Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                for (int i = 1; i < strData.Length; i++)
+                {
+                    string[] strValue = strData[i].Split(',');
+                    int rowIndex = mainForm.dataGridView1.Rows.Add();
+                    for (int j = 0; j < 6; j++)
+                    {
+                        mainForm.dataGridView1.Rows[rowIndex].Cells[j].Value = strValue[j];
+                    }
+                }
+                reader.Close();
+            }
+        }
+        public static void setValue_to_revitFile(UIApplication uIApplication)
+        {
+            MainForm mainForm = MyForm;
+            using (Transaction transaction=new Transaction(document))
+            {
+                transaction.Start("PickPileLineForGA_setValue");
+                try
+                {
+                    for (int i = 0; i < mainForm.dataGridView1.RowCount; i++)
+                    {
+                        Element element = document.GetElement(new ElementId(int.Parse(mainForm.dataGridView1.Rows[i].Cells["ID"].Value.ToString())));
+                        List<Parameter> parameters = element.GetParameters("HC_AirFlow").ToList();
+                        parameters[0].Set(mainForm.dataGridView1.Rows[i].Cells["Volume"].Value.ToString());
+                    }
+                    transaction.Commit();
+                }
+                catch (Exception)
+                {
+                    transaction.RollBack();
+                    throw;
+                }
+            }
         }
         public class jieDian
         {
@@ -610,6 +727,48 @@ namespace PickPileLineForGA
             //guanwang=list<zhilu>
             public ElementId owerId { get; set; }
             public int connectorID { get; set; }
+        }
+    }
+    public class ExecuteEventHandler : IExternalEventHandler
+    {
+        public string Name { get; set; }
+        public Action<UIApplication> ExecuteAction { get; set; }
+        public ExecuteEventHandler(string name)
+        {
+            Name = name;
+        }
+        public void Execute(UIApplication uIApp)
+        {
+            if (ExecuteAction != null)
+            {
+                //try
+                //{
+                ExecuteAction(uIApp);
+                //}
+                //catch (Exception e)
+                //{
+                //    //MessageBox.Show(e.Message);
+                //}
+            }
+        }
+        public string GetName()
+        {
+            return Name;
+        }
+
+    }
+    public class test
+    {
+        public static void run()
+        {
+            Element element = myFuncs.document.GetElement(new ElementId(3743513));
+            using (Transaction transaction=new Transaction(myFuncs.document))
+            {
+                transaction.Start("asd");
+                List<Parameter> parameters = element.GetParameters("HC_AirFlow").ToList();
+                parameters[0].Set("1000");
+                transaction.Commit();
+            }
         }
     }
 }
