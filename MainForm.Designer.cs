@@ -40,10 +40,10 @@ namespace PickPileLineForGA
             this.PipeLineName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Size = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Length = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Volume = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Type = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Angle = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.process1 = new System.Diagnostics.Process();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -56,7 +56,7 @@ namespace PickPileLineForGA
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.splitContainer1.Margin = new System.Windows.Forms.Padding(4);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -66,8 +66,8 @@ namespace PickPileLineForGA
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.dataGridView1);
-            this.splitContainer1.Size = new System.Drawing.Size(1178, 382);
-            this.splitContainer1.SplitterDistance = 219;
+            this.splitContainer1.Size = new System.Drawing.Size(1185, 339);
+            this.splitContainer1.SplitterDistance = 188;
             this.splitContainer1.SplitterWidth = 6;
             this.splitContainer1.TabIndex = 0;
             // 
@@ -83,7 +83,7 @@ namespace PickPileLineForGA
             this.tableLayoutPanel1.Controls.Add(this.button5, 0, 4);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 5;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
@@ -91,7 +91,7 @@ namespace PickPileLineForGA
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(219, 382);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(188, 339);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // button1
@@ -100,9 +100,9 @@ namespace PickPileLineForGA
             this.button1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1.Location = new System.Drawing.Point(4, 4);
-            this.button1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button1.Margin = new System.Windows.Forms.Padding(4);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(211, 68);
+            this.button1.Size = new System.Drawing.Size(180, 59);
             this.button1.TabIndex = 0;
             this.button1.Text = "1.管网信息提取";
             this.button1.UseVisualStyleBackColor = false;
@@ -113,10 +113,10 @@ namespace PickPileLineForGA
             this.button2.BackColor = System.Drawing.Color.Transparent;
             this.button2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button2.Location = new System.Drawing.Point(4, 80);
-            this.button2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button2.Location = new System.Drawing.Point(4, 71);
+            this.button2.Margin = new System.Windows.Forms.Padding(4);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(211, 68);
+            this.button2.Size = new System.Drawing.Size(180, 59);
             this.button2.TabIndex = 1;
             this.button2.Text = "2.所有支路生成";
             this.button2.UseVisualStyleBackColor = false;
@@ -127,10 +127,10 @@ namespace PickPileLineForGA
             this.button3.BackColor = System.Drawing.Color.Transparent;
             this.button3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button3.Location = new System.Drawing.Point(4, 156);
-            this.button3.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button3.Location = new System.Drawing.Point(4, 138);
+            this.button3.Margin = new System.Windows.Forms.Padding(4);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(211, 68);
+            this.button3.Size = new System.Drawing.Size(180, 59);
             this.button3.TabIndex = 2;
             this.button3.Text = "3.管网信息导出";
             this.button3.UseVisualStyleBackColor = false;
@@ -141,10 +141,10 @@ namespace PickPileLineForGA
             this.button4.BackColor = System.Drawing.Color.Transparent;
             this.button4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button4.Location = new System.Drawing.Point(4, 232);
-            this.button4.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button4.Location = new System.Drawing.Point(4, 205);
+            this.button4.Margin = new System.Windows.Forms.Padding(4);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(211, 68);
+            this.button4.Size = new System.Drawing.Size(180, 59);
             this.button4.TabIndex = 3;
             this.button4.Text = "4.管网信息导入";
             this.button4.UseVisualStyleBackColor = false;
@@ -155,10 +155,10 @@ namespace PickPileLineForGA
             this.button5.BackColor = System.Drawing.Color.Transparent;
             this.button5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.button5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button5.Location = new System.Drawing.Point(4, 308);
-            this.button5.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button5.Location = new System.Drawing.Point(4, 272);
+            this.button5.Margin = new System.Windows.Forms.Padding(4);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(211, 70);
+            this.button5.Size = new System.Drawing.Size(180, 63);
             this.button5.TabIndex = 4;
             this.button5.Text = "5.信息赋能模型";
             this.button5.UseVisualStyleBackColor = false;
@@ -175,16 +175,17 @@ namespace PickPileLineForGA
             this.PipeLineName,
             this.ID,
             this.Size,
+            this.Length,
             this.Volume,
             this.Type,
             this.Angle});
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView1.Location = new System.Drawing.Point(0, 0);
-            this.dataGridView1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.dataGridView1.Margin = new System.Windows.Forms.Padding(4);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 62;
             this.dataGridView1.RowTemplate.Height = 23;
-            this.dataGridView1.Size = new System.Drawing.Size(953, 382);
+            this.dataGridView1.Size = new System.Drawing.Size(991, 339);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView1_CellClick);
             // 
@@ -209,6 +210,13 @@ namespace PickPileLineForGA
             this.Size.Name = "Size";
             this.Size.ReadOnly = true;
             // 
+            // Length
+            // 
+            this.Length.HeaderText = "长度(mm)";
+            this.Length.MinimumWidth = 8;
+            this.Length.Name = "Length";
+            this.Length.ReadOnly = true;
+            // 
             // Volume
             // 
             this.Volume.HeaderText = "流量(m3/h)";
@@ -230,24 +238,14 @@ namespace PickPileLineForGA
             this.Angle.Name = "Angle";
             this.Angle.ReadOnly = true;
             // 
-            // process1
-            // 
-            this.process1.StartInfo.Domain = "";
-            this.process1.StartInfo.LoadUserProfile = false;
-            this.process1.StartInfo.Password = null;
-            this.process1.StartInfo.StandardErrorEncoding = null;
-            this.process1.StartInfo.StandardOutputEncoding = null;
-            this.process1.StartInfo.UserName = "";
-            this.process1.SynchronizingObject = this;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1178, 382);
+            this.ClientSize = new System.Drawing.Size(1185, 339);
             this.Controls.Add(this.splitContainer1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MainForm";
             this.Text = "管网优化-信息提取";
             this.splitContainer1.Panel1.ResumeLayout(false);
@@ -270,10 +268,10 @@ namespace PickPileLineForGA
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button5;
         public System.Windows.Forms.DataGridView dataGridView1;
-        private System.Diagnostics.Process process1;
         private System.Windows.Forms.DataGridViewTextBoxColumn PipeLineName;
         private System.Windows.Forms.DataGridViewTextBoxColumn ID;
         private System.Windows.Forms.DataGridViewTextBoxColumn Size;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Length;
         private System.Windows.Forms.DataGridViewTextBoxColumn Volume;
         private System.Windows.Forms.DataGridViewTextBoxColumn Type;
         private System.Windows.Forms.DataGridViewTextBoxColumn Angle;

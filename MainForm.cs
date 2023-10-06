@@ -80,5 +80,9 @@ namespace PickPileLineForGA
                 myFuncs.csv_to_data(this, openFileDialog.FileName);
             }
         }
+
+        private void process1_Exited(object sender, EventArgs e)
+        {
+                    }
     }
 }

@@ -30,8 +30,6 @@ namespace PickPileLineForGA
             Reference reference = UIDocument.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element);
             Element element = document.GetElement(reference.ElementId);
             Connector connectorReturn = null; //未连接的连接件
-            //MessageBox.Show(element.Id.ToString());
-            //throw new Exception();
             BuiltInCategory builtInCategory = (BuiltInCategory)element.Category.Id.IntegerValue;
             switch (builtInCategory)
             {
@@ -85,9 +83,11 @@ namespace PickPileLineForGA
             guanwang.Clear();
             linshiguanwang.Clear();
             List<jieDian> zhilu = new List<jieDian>();
-            jieDian jiedian = new jieDian();
-            jiedian.owerId = element.Id;
-            jiedian.connectorID = connectorReturn.Id;
+            jieDian jiedian = new jieDian
+            {
+                owerId = element.Id,
+                connectorID = connectorReturn.Id
+            };
             zhilu.Add(jiedian);
             linshiguanwang.Add(zhilu);//完成循环初始化需要的支路集合
 
@@ -209,7 +209,6 @@ namespace PickPileLineForGA
             List<jieDian> jieDiansReturn = new List<jieDian>();
             Element element = document.GetElement(jieDianIn.owerId);
             BuiltInCategory builtInCategory = (BuiltInCategory)element.Category.Id.IntegerValue;
-            Connector connector = null;
             ConnectorSet connectorSet = null;
             switch (builtInCategory)
             {
@@ -372,6 +371,15 @@ namespace PickPileLineForGA
                     string size = get_Connector_Size(jieDian.owerId, jieDian.connectorID);
                     string volume = get_Parameters("HC_AirFlow", element.Id);
                     string angle = "0";
+                    string length = "0";
+                    try
+                    {
+                        length = element.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH).AsValueString();
+                    }
+                    catch (Exception)
+                    {
+                        ;
+                    }
                     //末端是三通及四通的情况已经排除
                     //判断是否为最后的总管
                     //判断是否与下一个节点同图元，如果是直接进行下一个循环直到不是
@@ -379,7 +387,7 @@ namespace PickPileLineForGA
                     {
                         if (jieDian.owerId != zhilu[i-1].owerId)//末端唯一节点
                         {
-                            set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "End", angle);
+                            set_mainForm_data(mainForm, "支路" + num, element.Id, size, length, volume, "End", angle);
                         }
                     }
                     else if (i>0)//非末端及最后节点，或末端非唯一连接件
@@ -392,15 +400,15 @@ namespace PickPileLineForGA
                                 {
                                     case 2://弯头，变径,计算角度
                                         angle = get_ConnectorsAngle(jieDian.owerId, jieDian.connectorID, zhilu[i + 1].owerId, zhilu[i + 1].connectorID);
-                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Elbow", angle);
+                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size,length, volume, "Elbow", angle);
                                         break;
                                     case 3://三通，计算角度
                                         angle = get_ConnectorsAngle(jieDian.owerId, jieDian.connectorID, zhilu[i + 1].owerId, zhilu[i + 1].connectorID);
-                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Tee", angle);
+                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size, length, volume, "Tee", angle);
                                         break;
                                     case 4://四通，计算角度
                                         angle = get_ConnectorsAngle(jieDian.owerId, jieDian.connectorID, zhilu[i + 1].owerId, zhilu[i + 1].connectorID);
-                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Cross", angle);
+                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size, length, volume, "Cross", angle);
                                         break;
                                 } ;
                             }
@@ -408,20 +416,20 @@ namespace PickPileLineForGA
                             {
                                 if (duct != null)
                                 {
-                                    set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Duct", angle);
+                                    set_mainForm_data(mainForm, "支路" + num, element.Id, size,length, volume, "Duct", angle);
                                 }
                                 else
                                 {
-                                    set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Pipe", angle);
+                                    set_mainForm_data(mainForm, "支路" + num, element.Id, size,length, volume, "Pipe", angle);
                                 }
                             }
                         }
                     }
                     if (i==0)
                     {
-                        if (jieDian.owerId != zhilu[i+1].owerId)
+                        if (jieDian.owerId != zhilu[i+1].owerId)//末端只有一个连接件，非弯头，风管，三通，四通，只能是族
                         {
-                            set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "总管", angle);
+                            set_mainForm_data(mainForm, "支路" + num, element.Id, size,length, volume, "总管", angle);
                         }
                         else
                         {
@@ -431,15 +439,15 @@ namespace PickPileLineForGA
                                 {
                                     case 2://弯头，变径,计算角度
                                         angle = get_ConnectorsAngle(jieDian.owerId, jieDian.connectorID, zhilu[i + 1].owerId, zhilu[i + 1].connectorID);
-                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Elbow", angle);
+                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size,length, volume, "Elbow", angle);
                                         break;
                                     case 3://三通，计算角度
                                         angle = get_ConnectorsAngle(jieDian.owerId, jieDian.connectorID, zhilu[i + 1].owerId, zhilu[i + 1].connectorID);
-                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Tee", angle);
+                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size,length, volume, "Tee", angle);
                                         break;
                                     case 4://四通，计算角度
                                         angle = get_ConnectorsAngle(jieDian.owerId, jieDian.connectorID, zhilu[i + 1].owerId, zhilu[i + 1].connectorID);
-                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Cross", angle);
+                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size,length, volume, "Cross", angle);
                                         break;
                                 };
                             }
@@ -447,11 +455,11 @@ namespace PickPileLineForGA
                             {
                                 if (duct != null)
                                 {
-                                    set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Duct", angle);
+                                    set_mainForm_data(mainForm, "支路" + num, element.Id, size, length, volume, "Duct", angle);
                                 }
                                 else
                                 {
-                                    set_mainForm_data(mainForm, "支路" + num, element.Id, size, volume, "Pipe", angle);
+                                    set_mainForm_data(mainForm, "支路" + num, element.Id, size,length, volume, "Pipe", angle);
                                 }
                             }
                         }
@@ -536,7 +544,7 @@ namespace PickPileLineForGA
             #endregion
             return size;
         }
-        public static void set_mainForm_data(MainForm mainForm,string PipeLineName,ElementId ID,string Size,string Volume,string Type,string Angle)
+        public static void set_mainForm_data(MainForm mainForm,string PipeLineName,ElementId ID,string Size,string Length,string Volume,string Type,string Angle)
         {
             //支路名称：PipeLineName
             //ID：      ID
@@ -551,6 +559,7 @@ namespace PickPileLineForGA
             mainForm.dataGridView1.Rows[rowIndex].Cells["Type"].Value = Type;
             mainForm.dataGridView1.Rows[rowIndex].Cells["Angle"].Value = Angle;
             mainForm.dataGridView1.Rows[rowIndex].Cells["Size"].Value = Size;
+            mainForm.dataGridView1.Rows[rowIndex].Cells["Length"].Value = Length;
         }
         public static string get_ConnectorsAngle(ElementId elementId1,int connectorID1,ElementId elementId2,int connectorID2)
         {
@@ -644,6 +653,7 @@ namespace PickPileLineForGA
             //支路名称：PipeLineName
             //ID：      ID
             //尺寸：    Size
+            //长度：    Length
             //流量：    Volume
             //类型：    Type
             //角度：    Angle
@@ -655,7 +665,7 @@ namespace PickPileLineForGA
             {
                 StreamWriter streamWriter=new StreamWriter(fileStream);
                 int rowCount = mainForm.dataGridView1.RowCount;
-                streamWriter.WriteLine("PipeLineName,ID,Size,Volume,Type,Angle,");
+                streamWriter.WriteLine("PipeLineName,ID,Size,Length,Volume,Type,Angle,");
                 for (int i = 0; i < rowCount; i++)
                 {
                     int columnCount = mainForm.dataGridView1.ColumnCount;
@@ -675,6 +685,7 @@ namespace PickPileLineForGA
             //支路名称：PipeLineName
             //ID：      ID
             //尺寸：    Size
+            //长度:     Length
             //流量：    Volume
             //类型：    Type
             //角度：    Angle
@@ -690,7 +701,7 @@ namespace PickPileLineForGA
                 {
                     string[] strValue = strData[i].Split(',');
                     int rowIndex = mainForm.dataGridView1.Rows.Add();
-                    for (int j = 0; j < 6; j++)
+                    for (int j = 0; j < 7; j++)
                     {
                         mainForm.dataGridView1.Rows[rowIndex].Cells[j].Value = strValue[j];
                     }
@@ -761,14 +772,8 @@ namespace PickPileLineForGA
     {
         public static void run()
         {
-            Element element = myFuncs.document.GetElement(new ElementId(3743513));
-            using (Transaction transaction=new Transaction(myFuncs.document))
-            {
-                transaction.Start("asd");
-                List<Parameter> parameters = element.GetParameters("HC_AirFlow").ToList();
-                parameters[0].Set("1000");
-                transaction.Commit();
-            }
+            Element element = myFuncs.document.GetElement(new ElementId(3744329));
+            MessageBox.Show(element.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH).AsValueString());
         }
     }
 }
