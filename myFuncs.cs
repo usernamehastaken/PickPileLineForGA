@@ -532,7 +532,7 @@ namespace PickPileLineForGA
                 case ConnectorProfileType.Invalid:
                     throw new Exception("管道尺寸不在软件考虑范围");
                 case ConnectorProfileType.Round:
-                    size = UnitUtils.Convert(connector.Radius, DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_MILLIMETERS).ToString();
+                    size = UnitUtils.Convert(connector.Radius*2, DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_MILLIMETERS).ToString();
                     break;
                 case ConnectorProfileType.Rectangular:
                     size = UnitUtils.Convert(connector.Width, DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_MILLIMETERS).ToString() +
