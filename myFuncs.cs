@@ -400,7 +400,14 @@ namespace PickPileLineForGA
                                 {
                                     case 2://弯头，变径,计算角度
                                         angle = get_ConnectorsAngle(jieDian.owerId, jieDian.connectorID, zhilu[i + 1].owerId, zhilu[i + 1].connectorID);
-                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size,length, volume, "Elbow", angle);
+                                        if (angle=="0")
+                                        {
+                                            set_mainForm_data(mainForm, "支路" + num, element.Id, size, length, volume, "Reducer", angle);
+                                        }
+                                        else
+                                        {
+                                            set_mainForm_data(mainForm, "支路" + num, element.Id, size, length, volume, "Elbow", angle);
+                                        }
                                         break;
                                     case 3://三通，计算角度
                                         angle = get_ConnectorsAngle(jieDian.owerId, jieDian.connectorID, zhilu[i + 1].owerId, zhilu[i + 1].connectorID);
@@ -439,7 +446,14 @@ namespace PickPileLineForGA
                                 {
                                     case 2://弯头，变径,计算角度
                                         angle = get_ConnectorsAngle(jieDian.owerId, jieDian.connectorID, zhilu[i + 1].owerId, zhilu[i + 1].connectorID);
-                                        set_mainForm_data(mainForm, "支路" + num, element.Id, size,length, volume, "Elbow", angle);
+                                        if (angle == "0")
+                                        {
+                                            set_mainForm_data(mainForm, "支路" + num, element.Id, size, length, volume, "Reducer", angle);
+                                        }
+                                        else
+                                        {
+                                            set_mainForm_data(mainForm, "支路" + num, element.Id, size, length, volume, "Elbow", angle);
+                                        }
                                         break;
                                     case 3://三通，计算角度
                                         angle = get_ConnectorsAngle(jieDian.owerId, jieDian.connectorID, zhilu[i + 1].owerId, zhilu[i + 1].connectorID);
