@@ -398,7 +398,7 @@ namespace PickPileLineForGA
                             {
                                 switch (familyInstance.MEPModel.ConnectorManager.Connectors.Size)
                                 {
-                                    case 2://弯头，变径,计算角度
+                                    case 2://弯头，变径,计算角度/阀门支架附件等均归于Reducer
                                         angle = get_ConnectorsAngle(jieDian.owerId, jieDian.connectorID, zhilu[i + 1].owerId, zhilu[i + 1].connectorID);
                                         if (angle=="0")
                                         {
@@ -444,7 +444,7 @@ namespace PickPileLineForGA
                             {
                                 switch (familyInstance.MEPModel.ConnectorManager.Connectors.Size)
                                 {
-                                    case 2://弯头，变径,计算角度
+                                    case 2://弯头，变径,计算角度/阀门支架附件等均归于Reducer
                                         angle = get_ConnectorsAngle(jieDian.owerId, jieDian.connectorID, zhilu[i + 1].owerId, zhilu[i + 1].connectorID);
                                         if (angle == "0")
                                         {
