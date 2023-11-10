@@ -64,20 +64,23 @@ namespace PickPileLineForGA
                     }
                     break;
                 default:
-                    FamilyInstance familyInstance = (FamilyInstance)element;
-                    if (familyInstance.MEPModel.ConnectorManager.UnusedConnectors.Size == 1)
-                    {
-                        foreach (Connector item in familyInstance.MEPModel.ConnectorManager.UnusedConnectors)
-                        {
-                            connectorReturn = item;
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("不满足管道系统汇总末端条件，未发现唯一‘未使用的连接件’");
-                        return connectorReturn;
-                    }
-                    break;
+                    //===============不允许末端非风管或水管，方便后续计算
+                    //FamilyInstance familyInstance = (FamilyInstance)element;
+                    //if (familyInstance.MEPModel.ConnectorManager.UnusedConnectors.Size == 1)
+                    //{
+                    //    foreach (Connector item in familyInstance.MEPModel.ConnectorManager.UnusedConnectors)
+                    //    {
+                    //        connectorReturn = item;
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    MessageBox.Show("不满足管道系统汇总末端条件，未发现唯一‘未使用的连接件’");
+                    //    return connectorReturn;
+                    //}
+                    MessageBox.Show("末端需是 风管 或 水管");
+                    return connectorReturn;
+                    //break;
             }
 
             guanwang.Clear();
